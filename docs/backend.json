@@ -1,0 +1,899 @@
+{
+  "entities": {
+    "UserProfile": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "UserProfile",
+      "type": "object",
+      "description": "Represents a user's profile information and preferences within the Cyber-Sphere application, distinct from authentication credentials managed by an external system.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the UserProfile entity."
+        },
+        "displayName": {
+          "type": "string",
+          "description": "The user's display name, used for personalization across the application."
+        },
+        "preferredLanguage": {
+          "type": "string",
+          "description": "The user's preferred language for the application interface (e.g., 'en' for English, 'hi' for Hindi).",
+          "format": "iso-639-1",
+          "items": {
+            "type": "string"
+          }
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the user profile was created.",
+          "format": "date-time"
+        },
+        "lastActivityAt": {
+          "type": "string",
+          "description": "Timestamp of the user's last recorded significant activity in the application.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "displayName",
+        "preferredLanguage",
+        "createdAt"
+      ]
+    },
+    "LinkScanResult": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "LinkScanResult",
+      "type": "object",
+      "description": "Stores the results and details of a malicious link scan performed by a user.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the LinkScanResult entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to the UserProfile who performed this scan. (Relationship: UserProfile 1:N LinkScanResult)"
+        },
+        "scannedUrl": {
+          "type": "string",
+          "description": "The URL that was scanned.",
+          "format": "uri"
+        },
+        "resultStatus": {
+          "type": "string",
+          "description": "The overall outcome of the scan (e.g., 'safe', 'malicious', 'suspicious', 'error')."
+        },
+        "threatLevel": {
+          "type": "string",
+          "description": "The perceived threat level if malicious or suspicious (e.g., 'low', 'medium', 'high', 'critical')."
+        },
+        "details": {
+          "type": "string",
+          "description": "A detailed description or explanation of the scan result, including identified threats."
+        },
+        "scanTimestamp": {
+          "type": "string",
+          "description": "Timestamp when the scan was performed.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "scannedUrl",
+        "resultStatus",
+        "scanTimestamp"
+      ]
+    },
+    "MessageScanResult": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "MessageScanResult",
+      "type": "object",
+      "description": "Stores the results and details of a fake message detection scan performed by a user.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the MessageScanResult entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to the UserProfile who performed this scan. (Relationship: UserProfile 1:N MessageScanResult)"
+        },
+        "messageContentPreview": {
+          "type": "string",
+          "description": "A truncated or summarized version of the message content scanned, to avoid storing full sensitive data."
+        },
+        "resultStatus": {
+          "type": "string",
+          "description": "The overall outcome of the message scan (e.g., 'safe', 'phishing-detected', 'spam', 'suspicious')."
+        },
+        "threatLevel": {
+          "type": "string",
+          "description": "The perceived threat level if malicious or suspicious (e.g., 'low', 'medium', 'high')."
+        },
+        "details": {
+          "type": "string",
+          "description": "A detailed description or explanation of the scan result."
+        },
+        "scanTimestamp": {
+          "type": "string",
+          "description": "Timestamp when the message scan was performed.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "messageContentPreview",
+        "resultStatus",
+        "scanTimestamp"
+      ]
+    },
+    "DeepfakeScanResult": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "DeepfakeScanResult",
+      "type": "object",
+      "description": "Stores the results and details of a deepfake image or video verification performed by a user.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the DeepfakeScanResult entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to the UserProfile who performed this scan. (Relationship: UserProfile 1:N DeepfakeScanResult)"
+        },
+        "mediaReference": {
+          "type": "string",
+          "description": "A reference (e.g., URL or identifier) to the media that was scanned."
+        },
+        "mediaType": {
+          "type": "string",
+          "description": "The type of media scanned (e.g., 'image', 'video')."
+        },
+        "resultStatus": {
+          "type": "string",
+          "description": "The overall outcome of the deepfake scan (e.g., 'authentic', 'deepfake-detected', 'suspicious', 'error')."
+        },
+        "confidenceScore": {
+          "type": "number",
+          "description": "A numerical score indicating the confidence of the scan result (e.g., 0.0 to 1.0)."
+        },
+        "details": {
+          "type": "string",
+          "description": "A detailed description or explanation of the scan result."
+        },
+        "scanTimestamp": {
+          "type": "string",
+          "description": "Timestamp when the deepfake scan was performed.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "mediaReference",
+        "mediaType",
+        "resultStatus",
+        "scanTimestamp"
+      ]
+    },
+    "FileScanResult": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "FileScanResult",
+      "type": "object",
+      "description": "Stores the results and details of a file malware scan performed by a user.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the FileScanResult entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to the UserProfile who performed this scan. (Relationship: UserProfile 1:N FileScanResult)"
+        },
+        "fileName": {
+          "type": "string",
+          "description": "The original name of the file that was scanned."
+        },
+        "fileIdentifier": {
+          "type": "string",
+          "description": "A unique identifier for the scanned file, such as a content hash or internal storage ID."
+        },
+        "resultStatus": {
+          "type": "string",
+          "description": "The overall outcome of the file scan (e.g., 'clean', 'malware-detected', 'suspicious', 'error')."
+        },
+        "threatLevel": {
+          "type": "string",
+          "description": "The perceived threat level if malware is detected or suspicious (e.g., 'low', 'medium', 'high', 'critical')."
+        },
+        "details": {
+          "type": "string",
+          "description": "A detailed description or explanation of the scan result, including detected threats."
+        },
+        "scanTimestamp": {
+          "type": "string",
+          "description": "Timestamp when the file scan was performed.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "fileName",
+        "fileIdentifier",
+        "resultStatus",
+        "scanTimestamp"
+      ]
+    },
+    "QrCodeScanResult": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "QrCodeScanResult",
+      "type": "object",
+      "description": "Stores the results and details of a QR code security scan performed by a user.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the QrCodeScanResult entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to the UserProfile who performed this scan. (Relationship: UserProfile 1:N QrCodeScanResult)"
+        },
+        "scannedContent": {
+          "type": "string",
+          "description": "The content extracted from the scanned QR code (e.g., URL, text)."
+        },
+        "resultStatus": {
+          "type": "string",
+          "description": "The overall outcome of the QR code scan (e.g., 'safe', 'malicious-link', 'suspicious', 'error')."
+        },
+        "threatLevel": {
+          "type": "string",
+          "description": "The perceived threat level if malicious or suspicious (e.g., 'low', 'medium', 'high')."
+        },
+        "details": {
+          "type": "string",
+          "description": "A detailed description or explanation of the scan result."
+        },
+        "scanTimestamp": {
+          "type": "string",
+          "description": "Timestamp when the QR code scan was performed.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "scannedContent",
+        "resultStatus",
+        "scanTimestamp"
+      ]
+    },
+    "ChatSession": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "ChatSession",
+      "type": "object",
+      "description": "Represents a single conversational session with the AI chatbot.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the ChatSession entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to the UserProfile who initiated this chat session. (Relationship: UserProfile 1:N ChatSession)"
+        },
+        "startTime": {
+          "type": "string",
+          "description": "Timestamp when the chat session started.",
+          "format": "date-time"
+        },
+        "endTime": {
+          "type": "string",
+          "description": "Timestamp when the chat session ended.",
+          "format": "date-time"
+        },
+        "summary": {
+          "type": "string",
+          "description": "A brief summary or topic of the conversation, potentially AI-generated."
+        },
+        "lastMessageTimestamp": {
+          "type": "string",
+          "description": "Timestamp of the last message sent or received in the session.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "startTime"
+      ]
+    },
+    "ChatMessage": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "ChatMessage",
+      "type": "object",
+      "description": "Represents an individual message sent or received within a ChatSession.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the ChatMessage entity."
+        },
+        "chatSessionId": {
+          "type": "string",
+          "description": "Reference to the ChatSession this message belongs to. (Relationship: ChatSession 1:N ChatMessage)"
+        },
+        "senderType": {
+          "type": "string",
+          "description": "Indicates who sent the message (e.g., 'user', 'chatbot')."
+        },
+        "content": {
+          "type": "string",
+          "description": "The actual text content of the message."
+        },
+        "timestamp": {
+          "type": "string",
+          "description": "Timestamp when the message was sent or received.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "chatSessionId",
+        "senderType",
+        "content",
+        "timestamp"
+      ]
+    },
+    "SecurityTip": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "SecurityTip",
+      "type": "object",
+      "description": "Stores curated cybersecurity tips and advice for users.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the SecurityTip entity."
+        },
+        "title": {
+          "type": "string",
+          "description": "The title of the security tip."
+        },
+        "content": {
+          "type": "string",
+          "description": "The detailed content of the security tip."
+        },
+        "category": {
+          "type": "string",
+          "description": "The category of the tip (e.g., 'Phishing', 'Password Hygiene', 'Device Security')."
+        },
+        "severity": {
+          "type": "string",
+          "description": "The importance or urgency of the tip (e.g., 'low', 'medium', 'high')."
+        },
+        "publishedAt": {
+          "type": "string",
+          "description": "Timestamp when the security tip was first published.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp when the security tip was last updated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "content",
+        "category",
+        "publishedAt"
+      ]
+    },
+    "NewsArticle": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "NewsArticle",
+      "type": "object",
+      "description": "Stores aggregated or curated cybersecurity news articles for the dashboard.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the NewsArticle entity."
+        },
+        "title": {
+          "type": "string",
+          "description": "The title of the news article."
+        },
+        "summary": {
+          "type": "string",
+          "description": "A brief summary or abstract of the news article."
+        },
+        "externalUrl": {
+          "type": "string",
+          "description": "The URL to the full external news article.",
+          "format": "uri"
+        },
+        "publishedAt": {
+          "type": "string",
+          "description": "Timestamp when the news article was published.",
+          "format": "date-time"
+        },
+        "source": {
+          "type": "string",
+          "description": "The source or publisher of the news article."
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "summary",
+        "externalUrl",
+        "publishedAt",
+        "source"
+      ]
+    },
+    "UserLocation": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "UserLocation",
+      "type": "object",
+      "description": "Stores a user's geographical location for safety features, with explicit user consent.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the UserLocation entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to the UserProfile whose location this is. (Relationship: UserProfile 1:N UserLocation)"
+        },
+        "latitude": {
+          "type": "number",
+          "description": "The latitude coordinate of the user's location."
+        },
+        "longitude": {
+          "type": "number",
+          "description": "The longitude coordinate of the user's location."
+        },
+        "timestamp": {
+          "type": "string",
+          "description": "Timestamp when this location was recorded.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "latitude",
+        "longitude",
+        "timestamp"
+      ]
+    },
+    "CyberAttackReport": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "CyberAttackReport",
+      "type": "object",
+      "description": "Stores information about reported cyber-attacks, potentially for display on maps.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the CyberAttackReport entity."
+        },
+        "reportType": {
+          "type": "string",
+          "description": "The type of cyber-attack reported (e.g., 'DDoS', 'Ransomware', 'Phishing Campaign')."
+        },
+        "description": {
+          "type": "string",
+          "description": "A brief description of the cyber-attack incident."
+        },
+        "latitude": {
+          "type": "number",
+          "description": "The latitude coordinate of the reported attack's location."
+        },
+        "longitude": {
+          "type": "number",
+          "description": "The longitude coordinate of the reported attack's location."
+        },
+        "affectedArea": {
+          "type": "string",
+          "description": "A generalized description of the affected geographical area (e.g., city, region, country)."
+        },
+        "reportedAt": {
+          "type": "string",
+          "description": "Timestamp when the cyber-attack was reported or occurred.",
+          "format": "date-time"
+        },
+        "source": {
+          "type": "string",
+          "description": "The source of the report (e.g., 'user', 'OSINT feed', 'security partner')."
+        },
+        "status": {
+          "type": "string",
+          "description": "The current status of the report (e.g., 'reported', 'verified', 'resolved')."
+        }
+      },
+      "required": [
+        "id",
+        "reportType",
+        "description",
+        "latitude",
+        "longitude",
+        "reportedAt",
+        "source"
+      ]
+    },
+    "EmergencyContact": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "EmergencyContact",
+      "type": "object",
+      "description": "Stores user-defined emergency contact information for the panic button feature.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the EmergencyContact entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to the UserProfile who owns this emergency contact. (Relationship: UserProfile 1:N EmergencyContact)"
+        },
+        "name": {
+          "type": "string",
+          "description": "The full name of the emergency contact."
+        },
+        "relationship": {
+          "type": "string",
+          "description": "The user's relationship to the emergency contact (e.g., 'parent', 'spouse', 'friend')."
+        },
+        "phoneNumber": {
+          "type": "string",
+          "description": "The phone number of the emergency contact."
+        },
+        "email": {
+          "type": "string",
+          "description": "The email address of the emergency contact.",
+          "format": "email"
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "name",
+        "phoneNumber"
+      ]
+    },
+    "PanicButtonLog": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "PanicButtonLog",
+      "type": "object",
+      "description": "Logs activations of the emergency panic button by users.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the PanicButtonLog entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to the UserProfile who activated the panic button. (Relationship: UserProfile 1:N PanicButtonLog)"
+        },
+        "activationTimestamp": {
+          "type": "string",
+          "description": "Timestamp when the panic button was activated.",
+          "format": "date-time"
+        },
+        "latitude": {
+          "type": "number",
+          "description": "The latitude coordinate of the user's location at the time of activation, if available."
+        },
+        "longitude": {
+          "type": "number",
+          "description": "The longitude coordinate of the user's location at the time of activation, if available."
+        },
+        "status": {
+          "type": "string",
+          "description": "The status of the emergency response triggered (e.g., 'triggered', 'alert-sent', 'resolved', 'false-alarm')."
+        },
+        "notes": {
+          "type": "string",
+          "description": "Additional notes or details about the panic button activation."
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "activationTimestamp",
+        "status"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/users/{userId}",
+        "definition": {
+          "entityName": "UserProfile",
+          "schema": {
+            "$ref": "#/backend/entities/UserProfile"
+          },
+          "description": "Stores individual user profiles. The document ID (`userId`) corresponds to the Firebase Authentication UID. Access is restricted to the owning user."
+        }
+      },
+      {
+        "path": "/users/{userId}/linkScanResults/{linkScanResultId}",
+        "definition": {
+          "entityName": "LinkScanResult",
+          "schema": {
+            "$ref": "#/backend/entities/LinkScanResult"
+          },
+          "description": "Stores malicious link scan results for a specific user. Includes denormalized 'userId' field for authorization independence.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user who performed the scan."
+            },
+            {
+              "name": "linkScanResultId",
+              "description": "The unique identifier for a specific link scan result."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/messageScanResults/{messageScanResultId}",
+        "definition": {
+          "entityName": "MessageScanResult",
+          "schema": {
+            "$ref": "#/backend/entities/MessageScanResult"
+          },
+          "description": "Stores fake message detection scan results for a specific user. Includes denormalized 'userId' field for authorization independence.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user who performed the scan."
+            },
+            {
+              "name": "messageScanResultId",
+              "description": "The unique identifier for a specific message scan result."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/deepfakeScanResults/{deepfakeScanResultId}",
+        "definition": {
+          "entityName": "DeepfakeScanResult",
+          "schema": {
+            "$ref": "#/backend/entities/DeepfakeScanResult"
+          },
+          "description": "Stores deepfake image/video verification results for a specific user. Includes denormalized 'userId' field for authorization independence.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user who performed the verification."
+            },
+            {
+              "name": "deepfakeScanResultId",
+              "description": "The unique identifier for a specific deepfake scan result."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/fileScanResults/{fileScanResultId}",
+        "definition": {
+          "entityName": "FileScanResult",
+          "schema": {
+            "$ref": "#/backend/entities/FileScanResult"
+          },
+          "description": "Stores file malware scan results for a specific user. Includes denormalized 'userId' field for authorization independence.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user who performed the file scan."
+            },
+            {
+              "name": "fileScanResultId",
+              "description": "The unique identifier for a specific file scan result."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/qrCodeScanResults/{qrCodeScanResultId}",
+        "definition": {
+          "entityName": "QrCodeScanResult",
+          "schema": {
+            "$ref": "#/backend/entities/QrCodeScanResult"
+          },
+          "description": "Stores QR code security scan results for a specific user. Includes denormalized 'userId' field for authorization independence.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user who performed the QR code scan."
+            },
+            {
+              "name": "qrCodeScanResultId",
+              "description": "The unique identifier for a specific QR code scan result."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/chatSessions/{chatSessionId}",
+        "definition": {
+          "entityName": "ChatSession",
+          "schema": {
+            "$ref": "#/backend/entities/ChatSession"
+          },
+          "description": "Stores individual AI chatbot sessions for a specific user. Includes denormalized 'userId' field for authorization independence.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user who initiated the chat session."
+            },
+            {
+              "name": "chatSessionId",
+              "description": "The unique identifier for a specific chat session."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/chatSessions/{chatSessionId}/messages/{chatMessageId}",
+        "definition": {
+          "entityName": "ChatMessage",
+          "schema": {
+            "$ref": "#/backend/entities/ChatMessage"
+          },
+          "description": "Stores individual chat messages within a user's specific chat session. Includes denormalized 'userId' and 'chatSessionId' for authorization independence and contextual queries.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user who owns the chat session."
+            },
+            {
+              "name": "chatSessionId",
+              "description": "The unique identifier of the parent chat session."
+            },
+            {
+              "name": "chatMessageId",
+              "description": "The unique identifier for a specific chat message."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/locations/{userLocationId}",
+        "definition": {
+          "entityName": "UserLocation",
+          "schema": {
+            "$ref": "#/backend/entities/UserLocation"
+          },
+          "description": "Stores a user's geographical location history for safety features. Includes denormalized 'userId' field for authorization independence.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user whose location is being tracked."
+            },
+            {
+              "name": "userLocationId",
+              "description": "The unique identifier for a specific location record."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/emergencyContacts/{emergencyContactId}",
+        "definition": {
+          "entityName": "EmergencyContact",
+          "schema": {
+            "$ref": "#/backend/entities/EmergencyContact"
+          },
+          "description": "Stores user-defined emergency contact information. Includes denormalized 'userId' field for authorization independence.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user who owns this emergency contact."
+            },
+            {
+              "name": "emergencyContactId",
+              "description": "The unique identifier for a specific emergency contact."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/panicButtonLogs/{panicButtonLogId}",
+        "definition": {
+          "entityName": "PanicButtonLog",
+          "schema": {
+            "$ref": "#/backend/entities/PanicButtonLog"
+          },
+          "description": "Logs activations of the emergency panic button by a specific user. Includes denormalized 'userId' field for authorization independence.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user who activated the panic button."
+            },
+            {
+              "name": "panicButtonLogId",
+              "description": "The unique identifier for a specific panic button activation log."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/securityTips/{securityTipId}",
+        "definition": {
+          "entityName": "SecurityTip",
+          "schema": {
+            "$ref": "#/backend/entities/SecurityTip"
+          },
+          "description": "Stores global cybersecurity tips and advice. These documents are read-only for all authenticated users and managed by administrators.",
+          "params": [
+            {
+              "name": "securityTipId",
+              "description": "The unique identifier for a specific security tip."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/newsArticles/{newsArticleId}",
+        "definition": {
+          "entityName": "NewsArticle",
+          "schema": {
+            "$ref": "#/backend/entities/NewsArticle"
+          },
+          "description": "Stores global aggregated cybersecurity news articles. These documents are read-only for all authenticated users and managed by administrators.",
+          "params": [
+            {
+              "name": "newsArticleId",
+              "description": "The unique identifier for a specific news article."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/cyberAttackReports/{cyberAttackReportId}",
+        "definition": {
+          "entityName": "CyberAttackReport",
+          "schema": {
+            "$ref": "#/backend/entities/CyberAttackReport"
+          },
+          "description": "Stores global reports of cyber-attacks for map display. These documents are read-only for all authenticated users and can be managed by administrators.",
+          "params": [
+            {
+              "name": "cyberAttackReportId",
+              "description": "The unique identifier for a specific cyber attack report."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/roles_admin/{userId}",
+        "definition": {
+          "entityName": "UserProfile",
+          "schema": {
+            "$ref": "#/backend/entities/UserProfile"
+          },
+          "description": "A dedicated collection to define users with administrative privileges. The existence of a document with a 'userId' as its ID indicates that the corresponding user is an administrator, following the 'Existence over Content' principle for DBAC.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of a user who is designated as an administrator."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore structure for Cyber-Sphere is designed with a strong emphasis on Authorization Independence, Structural Segregation, and consistent Access Modeling to ensure security, scalability, and debuggability. All user-specific data is organized under a top-level `/users/{userId}` collection, leveraging path-based ownership. Each user-owned document within these subcollections (e.g., LinkScanResult, MessageScanResult, ChatSession) includes a denormalized `userId` field. This critical denormalization strategy eliminates the need for expensive and complex `get()` calls in security rules to check parent document attributes for authorization, thereby achieving Authorization Independence. For instance, a `LinkScanResult` document at `/users/{userId}/linkScanResults/{linkScanResultId}` will contain `resource.data.userId`, allowing rules to simply check `request.auth.uid == resource.data.userId` or `request.auth.uid == userId` (from the path wildcard).\n\nPublicly accessible or global data, such as `SecurityTip`, `NewsArticle`, and `CyberAttackReport`, is stored in dedicated top-level collections (`/securityTips`, `/newsArticles`, `/cyberAttackReports`). This structural segregation ensures that documents within a collection share the same security posture, simplifying rules significantly (e.g., read-only for all authenticated users).\n\nAuthorization Independence is further enforced by directly embedding the `userId` in all user-specific documents, even when the `userId` is already part of the document's path. This redundancy ensures that each document is self-contained regarding its ownership, simplifying data integrity checks and facilitating atomic operations without complex rule dependencies. For example, a `ChatMessage` at `/users/{userId}/chatSessions/{chatSessionId}/messages/{chatMessageId}` will include `userId` and `chatSessionId` as fields.\n\nQuery Against Permissions (QAPs) are robustly supported. For user-owned data, rules like `allow read: if request.auth.uid == userId;` automatically ensure that any `list` operation on `/users/{userId}/...` collections will only return documents owned by the authenticated user, as the query path itself includes the authenticated user's ID. For global collections (`/securityTips`, `/newsArticles`), where all authenticated users can read all documents, `list` operations naturally return all available documents, thus respecting the QAP principle without filtering. Admin roles are implemented using the 'Existence over Content' principle in a top-level `/roles_admin/{userId}` collection, allowing for direct, independent checks of administrative privileges without relying on custom claims or complex hierarchical lookups. This comprehensive approach results in a highly secure, performant, and easily auditable Firestore structure."
+  }
+}

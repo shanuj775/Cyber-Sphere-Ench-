@@ -1,0 +1,22 @@
+{
+  "placeholderImages": [
+    {
+      "id": "hero-bg",
+      "description": "Futuristic abstract digital background with data nodes and blue glows",
+      "imageUrl": "https://picsum.photos/seed/cyber1/1200/800",
+      "imageHint": "cybersecurity network"
+    },
+    {
+      "id": "deepfake-placeholder",
+      "description": "A split image showing real vs fake facial analysis",
+      "imageUrl": "https://picsum.photos/seed/deepfake1/600/400",
+      "imageHint": "face analysis"
+    },
+    {
+      "id": "malware-scan",
+      "description": "Abstract visualization of file scanning for viruses",
+      "imageUrl": "https://picsum.photos/seed/malware1/600/400",
+      "imageHint": "computer virus"
+    }
+  ]
+}
