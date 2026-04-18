@@ -54,7 +54,8 @@ type FakeNewsModel = {
 function tokenizeText(input: string) {
   return input
     .toLowerCase()
-    .replace(/[^a-z0-9\s]/g, ' ')
+    .replace(/[#@]\w+/g, 'hashtag') // Replace hashtags and mentions with generic term
+    .replace(/[^\w\s]/g, ' ') // Remove punctuation but keep spaces
     .split(/\s+/)
     .filter(Boolean);
 }
@@ -84,7 +85,7 @@ function trainFakeNewsModel(): FakeNewsModel {
 
   return {
     featureWeights: weights,
-    threshold: 8,
+    threshold: 6, // Lower threshold for better sensitivity on short posts
   };
 }
 
@@ -129,18 +130,71 @@ function detectLeaderIdentityClaim(text: string): string | null {
   return null;
 }
 
-export function analyzeNewsLocally(article: string): DetectFakeNewsOutput {
+function detectSocialMediaFakeNewsPatterns(text: string): string[] {
+  const signals: string[] = [];
+
+  // Count emojis (Twitter often has fake news with excessive emojis)
+  const emojiCount = (text.match(/[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/gu) || []).length;
+  if (emojiCount >= 3) {
+    signals.push('Excessive emoji usage');
+  }
+
+  // Multiple exclamation marks
+  const exclamationCount = (text.match(/!/g) || []).length;
+  if (exclamationCount >= 3) {
+    signals.push('Excessive exclamation marks');
+  }
+
+  // All caps words (shouting)
+  const capsWords = text.split(/\s+/).filter(word => word === word.toUpperCase() && word.length > 2);
+  if (capsWords.length >= 2) {
+    signals.push('Multiple words in all caps');
+  }
+
+  // Question marks in fake news often indicate conspiracy
+  const questionCount = (text.match(/\?/g) || []).length;
+  if (questionCount >= 2 && text.toLowerCase().includes('why') && text.toLowerCase().includes('hiding')) {
+    signals.push('Conspiracy questioning pattern');
+  }
+
+  return signals;
+}
+
+export function analyzeNewsLocally(
+  article: string,
+  fetchedContent?: {
+    urlsFound: string[];
+    contentAnalysis: Array<{
+      url: string;
+      contentType: 'article' | 'image' | 'pdf' | 'video' | 'other';
+      title?: string;
+      credibilityScore: number;
+      analysis: string;
+      suspiciousSignals: string[];
+    }>;
+  }
+): DetectFakeNewsOutput {
   const text = article.toLowerCase();
   const { score, signals: modelSignals } = scoreArticleWithModel(article);
   const signals: string[] = [...modelSignals];
 
+  // Add social media specific patterns
+  const socialSignals = detectSocialMediaFakeNewsPatterns(article);
+  signals.push(...socialSignals);
+
   const checkPatterns: Array<[RegExp, string]> = [
-    [/\b(shocking|unbelievable|miracle|secret revealed|clickbait)\b/, 'Clickbait or sensational language'],
-    [/\b(anonymous sources|unnamed experts|experts say|sources say)\b/, 'Unverified or anonymous sourcing'],
-    [/\b(must read|must share|share this|viral|before it disappears)\b/, 'Urgent sharing pressure'],
-    [/\b(admits|confirms|exposes|exposed|hates this)\b/, 'Sensational confirmation language'],
-    [/\b(bit\.ly|tinyurl|t\.co|goo\.gl)\b/, 'Shortened or obfuscated URL present'],
-    [/\b(free gift|win money|earn cash|make money)\b/, 'Too-good-to-be-true reward language'],
+    [/\b(shocking|unbelievable|miracle|secret revealed|clickbait|breaking|urgent|alert|warning)\b/, 'Sensational or urgent language'],
+    [/\b(anonymous sources|unnamed experts|experts say|sources say|sources close to|diplomatic sources)\b/, 'Unverified or anonymous sourcing'],
+    [/\b(must read|must share|share this|viral|before it disappears|retweet|rt|share if you agree)\b/, 'Urgent sharing pressure'],
+    [/\b(admits|confirms|exposes|exposed|hates this|doctors shocked|scientists shocked)\b/, 'Sensational confirmation language'],
+    [/\b(bit\.ly|tinyurl|t\.co|goo\.gl|shortened url|link in bio)\b/, 'Shortened or obfuscated URL present'],
+    [/\b(free gift|win money|earn cash|make money|one weird trick|hidden trick)\b/, 'Too-good-to-be-true reward language'],
+    [/\b(wake up|sheeple|truth|conspiracy|deep state|mainstream media|msm)\b/, 'Conspiracy theory language'],
+    [/\b(cures cancer|kills in 24 hours|bricks your phone|deletes all files)\b/, 'Extreme or impossible claims'],
+    [/[A-Z]{5,}/, 'Excessive use of capital letters (shouting)'],
+    [/#\w+(?:\s+#\w+){3,}/, 'Excessive hashtag usage'],
+    [/\b(fake news|hoax|lie|propaganda|disinformation)\b/, 'Meta-discussion of fake news'],
+    [/\b(may|might|could|possibly|reportedly|allegedly)\b.*\b(consider|plan|action)\b/, 'Speculative language about important actions'],
   ];
 
   for (const [pattern, label] of checkPatterns) {
@@ -162,34 +216,58 @@ export function analyzeNewsLocally(article: string): DetectFakeNewsOutput {
     signals.push(leaderSignal);
   }
 
-  const isFakeNews = score >= fakeNewsModel.threshold || signals.length >= 2 || Boolean(leaderSignal);
+  const isFakeNews = score >= fakeNewsModel.threshold ||
+                     signals.length >= 2 ||
+                     Boolean(leaderSignal) ||
+                     (text.length < 280 && signals.length >= 1 && score >= 3); // More sensitive for Twitter-length content
+
   const category: FakeNewsCategory = leaderSignal
     ? 'fake'
     : isFakeNews
-      ? score >= fakeNewsModel.threshold * 2
+      ? score >= fakeNewsModel.threshold * 1.5
         ? 'fake'
         : 'misleading'
       : 'real';
 
-  const confidence = Math.min(
+  // Analyze fetched content if provided
+  let confidenceAdjustment = 0;
+  const fetchedSignals: string[] = [];
+
+  if (fetchedContent) {
+    for (const content of fetchedContent.contentAnalysis) {
+      if (content.credibilityScore < 40) {
+        confidenceAdjustment -= 15;
+        fetchedSignals.push(...content.suspiciousSignals);
+      } else if (content.credibilityScore < 60) {
+        confidenceAdjustment -= 5;
+      }
+    }
+  }
+
+  const finalIsFakeNews = isFakeNews || Boolean(fetchedContent && fetchedContent.contentAnalysis.some(c => c.credibilityScore < 30));
+
+  const finalConfidence = Math.min(
     100,
     Math.max(
       50,
-      Math.round(35 + score * 3 + signals.length * 7 + (category === 'real' ? 0 : 5) + (leaderSignal ? 15 : 0))
+      Math.round(35 + score * 3 + signals.length * 7 + (category === 'real' ? 0 : 5) + (leaderSignal ? 15 : 0) + confidenceAdjustment)
     )
   );
 
-  const uniqueSignals = Array.from(new Set(signals)).slice(0, 6);
-  const reasoning = isFakeNews
-    ? `A trained credibility model flagged this content based on: ${uniqueSignals.join(', ')}.`
-    : 'A trained credibility model did not find strong fake-news indicators. Verify publication sources and official reporting before acting.';
+  const allSignals = [...signals, ...fetchedSignals];
+  const uniqueSignals = Array.from(new Set(allSignals)).slice(0, 6);
+
+  const reasoning = finalIsFakeNews
+    ? `A trained credibility model flagged this content based on: ${uniqueSignals.join(', ')}.${fetchedContent ? ' Additional analysis of linked content detected suspicious patterns.' : ''}`
+    : `A trained credibility model did not find strong fake-news indicators. Verify publication sources and official reporting before acting.${fetchedContent ? ' Linked content analysis completed.' : ''}`;
 
   return {
-    isFakeNews,
-    confidence,
+    isFakeNews: finalIsFakeNews,
+    confidence: finalConfidence,
     category,
     reasoning,
     flaggedSignals: uniqueSignals,
+    fetchedContent,
   };
 }
 

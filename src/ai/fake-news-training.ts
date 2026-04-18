@@ -6,6 +6,7 @@ export type FakeNewsExample = {
 };
 
 export const fakeNewsTrainingData: FakeNewsExample[] = [
+  // Original examples
   { text: 'Government admits secret cure for cancer, doctors hate this trick', category: 'fake' },
   { text: 'New study shows vaccines cause illness, experts warn', category: 'fake' },
   { text: 'Local politician exposed in shocking video, must share now', category: 'fake' },
@@ -46,4 +47,55 @@ export const fakeNewsTrainingData: FakeNewsExample[] = [
   { text: 'Official statement confirms new safety rules for school buses', category: 'real' },
   { text: 'Fake science claim says water can charge your phone instantly', category: 'fake' },
   { text: 'Survey finds vaccination rates remain steady nationwide', category: 'real' },
+
+  // Twitter-like short posts and modern fake news patterns
+  { text: 'BREAKING: Elon Musk just bought Twitter and is shutting it down tomorrow! 😱 #TwitterShutdown #ElonMusk', category: 'fake' },
+  { text: 'URGENT: New COVID variant kills in 24 hours. Stay home! Source: WHO (not really) #COVID #HealthAlert', category: 'fake' },
+  { text: 'Just saw this on CNN: Biden resigns after scandal! Retweet if you care about democracy 🇺🇸 #BidenResigns', category: 'fake' },
+  { text: 'Secret document leaked: Government tracking your every move through your phone 📱 #Privacy #BigBrother', category: 'misleading' },
+  { text: 'Scientists shocked: Eating this ONE fruit cures cancer! Doctors furious! 🍎 #Health #CancerCure', category: 'fake' },
+  { text: '🚨 ALERT: Banks closing forever starting Monday. Withdraw all cash NOW! #BankingCrisis #EconomicCollapse', category: 'fake' },
+  { text: 'WATCH: Video shows aliens landing in New York City! NASA confirms! 👽 #UFO #Aliens', category: 'fake' },
+  { text: 'Hidden camera footage: Politician caught in massive corruption scandal! 🔥 #Corruption #Politics', category: 'misleading' },
+  { text: 'MUST SEE: This video will change your life forever! Don\'t believe the mainstream media! #WakeUp #Truth', category: 'misleading' },
+  { text: 'Breaking news: Taylor Swift announces retirement from music forever! 😢 #TaylorSwift #MusicNews', category: 'fake' },
+  { text: '⚠️ WARNING: New iPhone update bricks your phone permanently! Don\'t update! #iPhone #Apple', category: 'fake' },
+  { text: 'Exclusive: I have proof that climate change is completely made up! Share this truth! 🌍 #ClimateHoax', category: 'fake' },
+  { text: 'SHOCKING: Study proves vaccines contain microchips! Wake up sheeple! 💉 #Vaccines #Conspiracy', category: 'fake' },
+  { text: 'Just happened: Massive earthquake hits California! Tsunami warning! 🌊 #Earthquake #California', category: 'misleading' },
+  { text: 'Secret recipe: Make $10,000 in one week from home! No experience needed! 💰 #MakeMoney #SideHustle', category: 'fake' },
+  { text: 'URGENT: Social Security numbers being sold on dark web! Check yours NOW! 🔒 #IdentityTheft', category: 'misleading' },
+  { text: 'Breaking: Russia and Ukraine sign peace deal! War over! ✌️ #Ukraine #Peace', category: 'fake' },
+  { text: 'Doctors hate this: One weird trick to lose 50 pounds in a week! 🍔➡️🏃‍♂️ #WeightLoss #Health', category: 'fake' },
+  { text: 'CONFIRMED: 5G towers cause COVID-19! That\'s why cases are rising! 📡 #5G #COVID', category: 'fake' },
+  { text: 'Watch this before it gets deleted: Proof of election fraud! 🗳️ #Election2024 #Fraud', category: 'misleading' },
+
+  // Real news examples (Twitter style)
+  { text: 'WHO reports 15 million new COVID cases worldwide this week. Vaccination campaigns continue. #COVID19 #Health', category: 'real' },
+  { text: 'NASA successfully launches Artemis II mission to the Moon. Next stop: Mars! 🚀 #NASA #Space', category: 'real' },
+  { text: 'Federal Reserve announces 0.25% interest rate increase to combat inflation. #Economy #Fed', category: 'real' },
+  { text: 'New study in Nature: Climate change accelerating faster than predicted. Urgent action needed. 🌍 #ClimateChange', category: 'real' },
+  { text: 'Supreme Court rules on voting rights case, upholding key provisions of the Voting Rights Act. ⚖️ #VotingRights', category: 'real' },
+  { text: 'Apple announces new iPhone 15 with advanced camera features and improved battery life. 📱 #Apple #Tech', category: 'real' },
+  { text: 'UN reports progress on sustainable development goals, but more work needed for 2030 targets. #SDGs #UN', category: 'real' },
+  { text: 'Local police department warns of increased cyber attacks targeting businesses. Stay vigilant! 🔐 #Cybersecurity', category: 'real' },
+  { text: 'New research shows Mediterranean diet reduces heart disease risk by 30%. 🥗 #Health #Nutrition', category: 'real' },
+  { text: 'Congress passes bipartisan infrastructure bill funding roads, bridges, and broadband. 🇺🇸 #Infrastructure', category: 'real' },
+  { text: 'WHO declares mpox outbreak contained in Africa after successful vaccination campaign. #Health #Mpox', category: 'real' },
+  { text: 'Tesla reports Q4 earnings: 500k vehicles delivered, beating expectations. 📈 #Tesla #EV', category: 'real' },
+  { text: 'CDC updates COVID guidelines for fully vaccinated individuals. Masks no longer required indoors. 😷 #COVID', category: 'real' },
+  { text: 'New York Times investigation reveals corruption in international soccer governing body. ⚽ #Soccer #Corruption', category: 'real' },
+  { text: 'European Union announces new climate targets: 55% emissions reduction by 2030. 🌱 #ClimateAction #EU', category: 'real' },
+
+  // More sophisticated misleading content
+  { text: 'Sources close to the matter say the president may consider military action. Stay tuned for updates. #Politics', category: 'misleading' },
+  { text: 'Early reports suggest possible breakthrough in Alzheimer\'s research, but more studies needed. 🧠 #MedicalResearch', category: 'real' },
+  { text: 'Breaking: Stock market drops 500 points amid economic uncertainty. Analysts weigh in. 📉 #StockMarket', category: 'real' },
+  { text: 'New data shows crime rates declining in major cities across the US. 📊 #Crime #Statistics', category: 'real' },
+  { text: 'Scientists discover new species of deep-sea creatures in Mariana Trench. 🐟 #Ocean #Discovery', category: 'real' },
+  { text: 'Tech companies face new regulations on data privacy in Europe. 🔒 #Privacy #GDPR', category: 'real' },
+  { text: 'Breaking: Peace talks between warring factions show promising signs. Diplomatic sources optimistic. ✌️ #Peace', category: 'misleading' },
+  { text: 'Study finds link between social media use and mental health concerns among teens. 📱 #MentalHealth', category: 'real' },
+  { text: 'NASA confirms asteroid will pass safely by Earth next month. No threat to planet. ☄️ #NASA #Asteroid', category: 'real' },
+  { text: 'New vaccine shows 95% effectiveness against latest COVID variant in clinical trials. 💉 #COVID #Vaccine', category: 'real' },
 ];

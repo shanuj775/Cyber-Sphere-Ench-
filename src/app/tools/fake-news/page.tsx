@@ -133,6 +133,51 @@ export default function FakeNewsPage() {
                   </ul>
                 </div>
               )}
+              {result.fetchedContent && result.fetchedContent.urlsFound.length > 0 && (
+                <div className="p-4 bg-background/50 rounded-xl border border-white/5">
+                  <h4 className="font-bold mb-2 text-sm uppercase tracking-wider flex items-center gap-2">
+                    🔗 Linked Content Analysis
+                  </h4>
+                  <div className="space-y-3">
+                    <p className="text-xs text-muted-foreground">
+                      Found {result.fetchedContent.urlsFound.length} URL(s) in the content
+                    </p>
+                    {result.fetchedContent.contentAnalysis.map((content, index) => (
+                      <div key={index} className="p-3 bg-background/30 rounded-lg border border-white/5">
+                        <div className="flex items-start justify-between mb-2">
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium truncate" title={content.url}>
+                              {content.url.length > 60 ? `${content.url.substring(0, 60)}...` : content.url}
+                            </p>
+                            <div className="flex items-center gap-2 mt-1">
+                              <Badge variant="outline" className="text-xs">
+                                {content.contentType.toUpperCase()}
+                              </Badge>
+                              <span className={`text-xs font-medium ${
+                                content.credibilityScore >= 70 ? 'text-emerald-400' :
+                                content.credibilityScore >= 50 ? 'text-amber-400' : 'text-accent'
+                              }`}>
+                                Credibility: {content.credibilityScore}%
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-2">{content.analysis}</p>
+                        {content.suspiciousSignals.length > 0 && (
+                          <div className="mt-2">
+                            <p className="text-xs font-medium text-accent mb-1">Suspicious signals:</p>
+                            <ul className="list-disc list-inside text-xs text-muted-foreground">
+                              {content.suspiciousSignals.map((signal, idx) => (
+                                <li key={idx}>{signal}</li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </CardContent>
           </Card>
         )}
