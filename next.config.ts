@@ -11,6 +11,11 @@ const nextConfig: NextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
+  api: {
+    bodyParser: {
+      sizeLimit: '10mb',
+    },
+  },
   images: {
     remotePatterns: [
       {

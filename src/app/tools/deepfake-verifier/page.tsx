@@ -14,6 +14,7 @@ export default function DeepfakeVerifierPage() {
   const [image, setImage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<DeepfakeVerifierOutput | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -31,11 +32,18 @@ export default function DeepfakeVerifierPage() {
   const handleVerify = async () => {
     if (!image) return;
     setLoading(true);
+    setError(null);
+    setResult(null);
+
     try {
       const output = await verifyDeepfake({ photoDataUri: image });
+      if (!output || typeof output.isDeepfake !== 'boolean') {
+        throw new Error('Invalid verification response');
+      }
       setResult(output);
     } catch (err) {
       console.error(err);
+      setError('Deepfake verification failed. Please try again or use the local fallback analysis.');
     } finally {
       setLoading(false);
     }
@@ -113,6 +121,15 @@ export default function DeepfakeVerifierPage() {
               <div className="text-center space-y-4">
                 <Eye className="h-12 w-12 text-primary mx-auto animate-bounce" />
                 <p className="text-sm font-bold text-primary uppercase tracking-widest">Scanning Digital Artifacts...</p>
+              </div>
+            </div>
+          )}
+
+          {error && (
+            <div className="h-full flex items-center justify-center p-6 border border-red-500/20 rounded-2xl bg-red-500/10">
+              <div className="text-center space-y-3">
+                <p className="text-sm font-bold text-red-500">{error}</p>
+                <p className="text-xs text-muted-foreground">If the AI verification fails, the local heuristic will still inspect the image on the server.</p>
               </div>
             </div>
           )}

@@ -28,12 +28,13 @@ const deepfakePrompt = ai.definePrompt({
   name: 'deepfakePrompt',
   input: { schema: DeepfakeVerifierInputSchema },
   output: { schema: DeepfakeVerifierOutputSchema },
-  prompt: `You are a digital forensics expert specializing in AI-generated media detection. 
-Analyze the provided image for signs of deepfake manipulation, such as GAN artifacts, inconsistent textures, unnatural facial features, or lighting mismatches.
+  prompt: `You are a digital forensics expert specializing in AI-generated media detection.
+Analyze the provided image for signs of deepfake manipulation, such as GAN artifacts, inconsistent textures, unnatural facial features, lighting mismatches, or metadata anomalies.
 
-Image: {{media url=photoDataUri}}
+Image data URI:
+{{media url=photoDataUri}}
 
-Provide a detailed forensics report.`,
+If the image cannot be inspected in full, infer manipulation risk from metadata, format, or anomalies. Answer only in the requested JSON schema.`,
 });
 
 const deepfakeVerifierFlow = ai.defineFlow(
@@ -44,15 +45,15 @@ const deepfakeVerifierFlow = ai.defineFlow(
   },
   async (input) => {
     if (!hasAiCredentials()) {
-      return analyzeDeepfakeLocally();
+      return analyzeDeepfakeLocally(input.photoDataUri);
     }
 
     try {
       const { output } = await deepfakePrompt(input);
-      return output ?? analyzeDeepfakeLocally();
+      return output ?? analyzeDeepfakeLocally(input.photoDataUri);
     } catch (error) {
       console.error('AI deepfake verification failed; using local fallback.', error);
-      return analyzeDeepfakeLocally();
+      return analyzeDeepfakeLocally(input.photoDataUri);
     }
   }
 );

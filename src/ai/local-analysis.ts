@@ -436,16 +436,94 @@ export function analyzeFileLocally(fileName: string, fileType: string, fileDataU
   };
 }
 
-export function analyzeDeepfakeLocally(): DeepfakeVerifierOutput {
-  // Use deepfake training data indicators for analysis
+export function analyzeDeepfakeLocally(photoDataUri?: string): DeepfakeVerifierOutput {
   const indicatorCount = deepfakeTrainingData.indicators.length;
   const averageConfidence = deepfakeTrainingData.indicators.reduce((a, b) => a + b.confidence, 0) / indicatorCount;
+  const summaryBase = `Local heuristic scan used ${indicatorCount} deepfake indicators. Average training confidence: ${Math.round(averageConfidence)}%.`;
+
+  if (!photoDataUri) {
+    return {
+      isDeepfake: false,
+      confidence: 35,
+      anomalies: ['No image data was provided for local analysis.'],
+      summary: `${summaryBase} No media data URI was available for inspection.`,
+    };
+  }
+
+  const match = photoDataUri.match(/^data:(image\/[a-zA-Z0-9.+-]+);base64,(.+)$/);
+  if (!match) {
+    return {
+      isDeepfake: false,
+      confidence: 32,
+      anomalies: ['The provided image data is not a valid data URI.'],
+      summary: `${summaryBase} The image format could not be parsed for local heuristic analysis.`,
+    };
+  }
+
+  const [, mimeType, base64Data] = match;
+  const imageBuffer = Buffer.from(base64Data, 'base64');
+  const sizeBytes = imageBuffer.length;
+
+  const counts = new Array(256).fill(0);
+  for (const byte of imageBuffer) {
+    counts[byte]++;
+  }
+
+  const entropy = counts.reduce((sum, count) => {
+    if (count === 0) return sum;
+    const p = count / sizeBytes;
+    return sum - p * Math.log2(p);
+  }, 0);
+
+  const anomalies: string[] = [];
+  let confidence = 38;
+
+  if (sizeBytes < 40_000) {
+    anomalies.push('Very small image file size, which can indicate heavy compression or synthetic generation.');
+    confidence += 12;
+  }
+
+  if (sizeBytes > 4_000_000) {
+    anomalies.push('Large image file size; inspect for upscaled or overly smoothed pixels.');
+    confidence += 4;
+  }
+
+  if (entropy > 7.7) {
+    anomalies.push('High entropy pattern detected; synthetic or heavily edited imagery is more likely.');
+    confidence += 10;
+  }
+
+  if (entropy < 5.2) {
+    anomalies.push('Low entropy indicates heavy compression or data padding, which can be a sign of manipulated export.');
+    confidence += 8;
+  }
+
+  const hasJfif = imageBuffer.includes(Buffer.from('JFIF'));
+  const hasExif = imageBuffer.includes(Buffer.from('Exif'));
+  if (/jpeg|jpg/i.test(mimeType) && !hasJfif && !hasExif) {
+    anomalies.push('JPEG image lacks typical metadata markers, which can indicate an edited or synthetic source.');
+    confidence += 8;
+  }
+
+  if (/png/i.test(mimeType) && !imageBuffer.includes(Buffer.from('IHDR'))) {
+    anomalies.push('PNG header appears abnormal; metadata or file structure may be missing.');
+    confidence += 8;
+  }
+
+  const repeatedPatternDetected = /(.)\1\1\1/.test(base64Data);
+  if (repeatedPatternDetected) {
+    anomalies.push('Repeated byte groups detected in the encoded image, which can indicate structured compression artifacts.');
+    confidence += 5;
+  }
+
+  const isDeepfake = confidence >= 55 || anomalies.length >= 2;
+  const finalConfidence = Math.min(100, Math.max(30, confidence));
 
   return {
-    isDeepfake: false,
-    confidence: 35, // Placeholder - requires actual image analysis
-    anomalies: [],
-    summary: `Local placeholder scan checked for ${indicatorCount} deepfake indicators. Full analysis requires image processing. Average detection confidence: ${Math.round(averageConfidence)}%.`,
+    isDeepfake,
+    confidence: finalConfidence,
+    anomalies,
+    summary: `${summaryBase} Local heuristic analysis completed using mime type ${mimeType} and file size ${Math.round(sizeBytes / 1024)} KB.`,
   };
 }
 
